@@ -36,8 +36,6 @@ jobs:
           target: packager
           load: true
           tags: packager
-          cache-from: type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
 
       - name: Extract built package
         run: |
@@ -69,5 +67,3 @@ jobs:
             DOCKER_METADATA_OUTPUT_JSON
           tags: ${{ steps.slurmctld-meta.outputs.tags }}
           labels: ${{ steps.slurmctld-meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
