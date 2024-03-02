@@ -55,7 +55,7 @@ jobs:
         with:
           images: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: |
-            suffix: slurmctld
+            suffix=slurmctld
 
       - name: Build and push slurmctld image
         uses: docker/build-push-action@91df6b874e498451163feb47610c87c4a218c1ee
