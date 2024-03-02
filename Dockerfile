@@ -66,6 +66,8 @@ COPY --from=builder /opt/slurm /opt/slurm
 # Default configuration options in supervisord.conf that can be overridden at runtime
 ENV MUNGED_ARGS=
 ENV SLURMCTLD_ARGS=
+# This allows the user to use a pre-existing munge key
+ENV MUNGE_KEY_IMPORT_PATH=/etc/munge/munge.imported.key
 
 # Configure supervisor
 RUN cat > /etc/supervisord.conf <<EOF
@@ -82,6 +84,12 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 [supervisorctl]
 serverurl=unix:///var/run/supervisor.sock
 
+[program:bootstrap-munge]
+command=/usr/bin/bash -c 'if [ -s "%(ENV_MUNGE_KEY_IMPORT_PATH)s" ]; then cp "%(ENV_MUNGE_KEY_IMPORT_PATH)s" /etc/munge/munge.key; fi'
+autorestart=false
+startsecs=0
+priority=50
+
 [program:munge]
 command=/usr/sbin/munged --foreground %(ENV_MUNGED_ARGS)s
 autostart=true
@@ -89,6 +97,7 @@ autorestart=true
 user=munge
 stdout_logfile=/var/log/supervisor/munge.out
 stderr_logfile=/var/log/supervisor/munge.err
+priority=100
 
 [program:slurmctld]
 command=/opt/slurm/sbin/slurmctld -D %(ENV_SLURMCTLD_ARGS)s
@@ -96,6 +105,7 @@ autostart=true
 autorestart=true
 stdout_logfile=/var/log/supervisor/slurmctld.out
 stderr_logfile=/var/log/supervisor/slurmctld.err
+priority=150
 
 EOF
 
