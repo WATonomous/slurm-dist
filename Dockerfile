@@ -63,6 +63,10 @@ RUN mkdir /run/munge && chown munge:munge /run/munge
 # Copy the built slurm binaries from the builder stage
 COPY --from=builder /opt/slurm /opt/slurm
 
+# Default configuration options in supervisord.conf that can be overridden at runtime
+ENV MUNGED_ARGS=
+ENV SLURMCTLD_ARGS=
+
 # Configure supervisor
 RUN cat > /etc/supervisord.conf <<EOF
 [supervisord]
@@ -76,7 +80,7 @@ file=/var/run/supervisor.sock
 serverurl=unix:///var/run/supervisor.sock
 
 [program:munge]
-command=/usr/sbin/munged --foreground
+command=/usr/sbin/munged --foreground %(ENV_MUNGED_ARGS)s
 autostart=true
 autorestart=true
 user=munge
@@ -84,7 +88,7 @@ stdout_logfile=/var/log/supervisor/munge.log
 stderr_logfile=/var/log/supervisor/munge.err
 
 [program:slurmctld]
-command=/opt/slurm/sbin/slurmctld -D
+command=/opt/slurm/sbin/slurmctld -D %(ENV_SLURMCTLD_ARGS)s
 autostart=true
 autorestart=true
 user=slurm
