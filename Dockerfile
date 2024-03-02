@@ -76,6 +76,9 @@ logfile=/var/log/supervisor/supervisord.log
 [unix_http_server]
 file=/var/run/supervisor.sock
 
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+
 [supervisorctl]
 serverurl=unix:///var/run/supervisor.sock
 
