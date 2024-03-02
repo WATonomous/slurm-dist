@@ -17,7 +17,8 @@ jobs:
   create-and-publish-packages:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # write is required for creating releases
+      contents: write
       packages: write
 
     steps:
