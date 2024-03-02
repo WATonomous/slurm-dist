@@ -87,15 +87,14 @@ command=/usr/sbin/munged --foreground %(ENV_MUNGED_ARGS)s
 autostart=true
 autorestart=true
 user=munge
-stdout_logfile=/var/log/supervisor/munge.log
+stdout_logfile=/var/log/supervisor/munge.out
 stderr_logfile=/var/log/supervisor/munge.err
 
 [program:slurmctld]
 command=/opt/slurm/sbin/slurmctld -D %(ENV_SLURMCTLD_ARGS)s
 autostart=true
 autorestart=true
-user=slurm
-stdout_logfile=/var/log/supervisor/slurmctld.log
+stdout_logfile=/var/log/supervisor/slurmctld.out
 stderr_logfile=/var/log/supervisor/slurmctld.err
 
 EOF
