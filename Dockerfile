@@ -84,14 +84,8 @@ supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
 [supervisorctl]
 serverurl=unix:///var/run/supervisor.sock
 
-[program:bootstrap-munge]
-command=/usr/bin/bash -c 'if [ -s "%(ENV_MUNGE_KEY_IMPORT_PATH)s" ]; then cp "%(ENV_MUNGE_KEY_IMPORT_PATH)s" /etc/munge/munge.key; fi'
-autorestart=false
-startsecs=0
-priority=50
-
 [program:munge]
-command=/usr/sbin/munged --foreground %(ENV_MUNGED_ARGS)s
+command=/usr/bin/bash -c 'if [ -s "%(ENV_MUNGE_KEY_IMPORT_PATH)s" ]; then cp "%(ENV_MUNGE_KEY_IMPORT_PATH)s" /etc/munge/munge.key; fi; /usr/sbin/munged --foreground %(ENV_MUNGED_ARGS)s'
 autostart=true
 autorestart=true
 user=munge
