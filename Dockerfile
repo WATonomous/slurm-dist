@@ -69,48 +69,17 @@ ENV SLURMCTLD_ARGS=
 # This allows the user to use a pre-existing munge key
 ENV MUNGE_KEY_IMPORT_PATH=/etc/munge/munge.imported.key
 
+COPY runtime-agent.sh /opt/runtime-agent.sh
+RUN chmod +x /opt/runtime-agent.sh
+
+# Set up for the runtime agent
+RUN mkdir /etc/slurm /etc/runtime_config && touch /etc/runtime_config/passwd /etc/runtime_config/group
+RUN cp /etc/passwd /etc/passwd.system && cp /etc/group /etc/group.system
+
+COPY prefix-output.sh /opt/prefix-output.sh
+RUN chmod +x /opt/prefix-output.sh
+
 # Configure supervisor
-RUN cat > /etc/supervisord.conf <<EOF
-[supervisord]
-nodaemon=true
-logfile=/var/log/supervisor/supervisord.log
-
-[unix_http_server]
-file=/var/run/supervisor.sock
-
-[rpcinterface:supervisor]
-supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-[supervisorctl]
-serverurl=unix:///var/run/supervisor.sock
-
-[program:munge]
-command=/usr/bin/bash -c 'if [ -s "%(ENV_MUNGE_KEY_IMPORT_PATH)s" ]; then cp "%(ENV_MUNGE_KEY_IMPORT_PATH)s" /etc/munge/munge.key; fi; /usr/sbin/munged --foreground %(ENV_MUNGED_ARGS)s'
-autostart=true
-autorestart=true
-user=munge
-stdout_logfile=/var/log/supervisor/munge.out
-stderr_logfile=/var/log/supervisor/munge.err
-priority=100
-
-[program:slurmctld]
-command=/opt/slurm/sbin/slurmctld -D %(ENV_SLURMCTLD_ARGS)s
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/slurmctld.out
-stderr_logfile=/var/log/supervisor/slurmctld.err
-priority=150
-
-[program:scontrol_reconfigure]
-command=/usr/bin/bash -c 'inotifywait --monitor --recursive --event create,delete,modify,attrib,move /etc/slurm | while read FILE; do timeout 3 cat > /dev/null && echo "Detected changes to /etc/slurm. Running scontrol reconfigure"; /opt/slurm/bin/scontrol reconfigure; done'
-autostart=true
-autorestart=true
-stdout_logfile=/var/log/supervisor/scontrol-reconfigure.out
-stderr_logfile=/var/log/supervisor/scontrol-reconfigure.err
-priority=200
-
-EOF
-
-RUN mkdir /etc/slurm
+COPY supervisord.conf /etc/supervisord.conf
 
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
