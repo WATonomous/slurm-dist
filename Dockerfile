@@ -56,7 +56,7 @@ RUN groupadd --gid 64029 munge && useradd --uid 64029 --gid 64029 --home-dir /va
 RUN groupadd --gid 64030 slurm && useradd --uid 64030 --gid 64030 --home-dir /var/spool/slurm --no-create-home --shell /bin/false slurm
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install libmunge2 munge supervisor -y
+RUN apt-get update && apt-get install libmunge2 munge supervisor inotify-tools -y
 
 RUN mkdir /run/munge && chown munge:munge /run/munge
 
@@ -101,6 +101,16 @@ stdout_logfile=/var/log/supervisor/slurmctld.out
 stderr_logfile=/var/log/supervisor/slurmctld.err
 priority=150
 
+[program:scontrol_reconfigure]
+command=/usr/bin/bash -c 'inotifywait --monitor --recursive --event create,delete,modify,attrib,move /etc/slurm | while read FILE; do timeout 3 cat > /dev/null && echo "Detected changes to /etc/slurm. Running scontrol reconfigure"; /opt/slurm/bin/scontrol reconfigure; done'
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/scontrol-reconfigure.out
+stderr_logfile=/var/log/supervisor/scontrol-reconfigure.err
+priority=200
+
 EOF
+
+RUN mkdir /etc/slurm
 
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
