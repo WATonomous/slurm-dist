@@ -89,6 +89,8 @@ ENTRYPOINT ["/opt/entrypoint.sh"]
 
 FROM daemon_base as slurmdbd
 
+RUN apt update && apt install -y libmysqlclient21
+
 # Default configuration options in supervisord.conf that can be overridden at runtime
 ENV MUNGED_ARGS=
 ENV SLURMDBD_ARGS=
