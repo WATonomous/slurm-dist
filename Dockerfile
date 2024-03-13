@@ -69,17 +69,49 @@ ENV SLURMCTLD_ARGS=
 # This allows the user to use a pre-existing munge key
 ENV MUNGE_KEY_IMPORT_PATH=/etc/munge/munge.imported.key
 
-COPY runtime-agent.sh /opt/runtime-agent.sh
+# Set up for the runtime agent
+RUN mkdir /etc/slurm /etc/runtime_config && touch /etc/runtime_config/passwd /etc/runtime_config/group
+RUN cp /etc/passwd /etc/passwd.system && cp /etc/group /etc/group.system
+
+# Copy configuration files and scripts
+COPY slurmctld/runtime-agent.sh /opt/runtime-agent.sh
 RUN chmod +x /opt/runtime-agent.sh
+COPY prefix-output.sh /opt/prefix-output.sh
+RUN chmod +x /opt/prefix-output.sh
+COPY slurmctld/supervisord.conf /etc/supervisord.conf
+
+ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+
+
+FROM ubuntu:22.04 as slurmdbd
+
+# Create the users. 60430 is the default slurm uid. 60429 for munge is arbitrary.
+RUN groupadd --gid 64029 munge && useradd --uid 64029 --gid 64029 --home-dir /var/spool/munge --no-create-home --shell /bin/false munge
+RUN groupadd --gid 64030 slurm && useradd --uid 64030 --gid 64030 --home-dir /var/spool/slurm --no-create-home --shell /bin/false slurm
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install libmunge2 munge supervisor inotify-tools -y
+
+RUN mkdir /run/munge && chown munge:munge /run/munge
+
+# Copy the built slurm binaries from the builder stage
+COPY --from=builder /opt/slurm /opt/slurm
+
+# Default configuration options in supervisord.conf that can be overridden at runtime
+ENV MUNGED_ARGS=
+ENV SLURMDBD_ARGS=
+# This allows the user to use a pre-existing munge key
+ENV MUNGE_KEY_IMPORT_PATH=/etc/munge/munge.imported.key
 
 # Set up for the runtime agent
 RUN mkdir /etc/slurm /etc/runtime_config && touch /etc/runtime_config/passwd /etc/runtime_config/group
 RUN cp /etc/passwd /etc/passwd.system && cp /etc/group /etc/group.system
 
+# Copy configuration files and scripts
+COPY slurmdbd/runtime-agent.sh /opt/runtime-agent.sh
+RUN chmod +x /opt/runtime-agent.sh
 COPY prefix-output.sh /opt/prefix-output.sh
 RUN chmod +x /opt/prefix-output.sh
-
-# Configure supervisor
-COPY supervisord.conf /etc/supervisord.conf
+COPY slurmdbd/supervisord.conf /etc/supervisord.conf
 
 ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
