@@ -106,7 +106,7 @@ ENV SLURMDBD_ARGS=
 ENV MUNGE_KEY_IMPORT_PATH=/etc/munge/munge.imported.key
 
 # Set up for the runtime agent
-RUN mkdir /etc/slurm /etc/runtime_config && touch /etc/runtime_config/passwd /etc/runtime_config/group
+RUN mkdir /etc/slurm /etc/runtime_config /etc/slurmdbd_config && touch /etc/runtime_config/passwd /etc/runtime_config/group
 RUN cp /etc/passwd /etc/passwd.system && cp /etc/group /etc/group.system
 
 # Copy configuration files and scripts
