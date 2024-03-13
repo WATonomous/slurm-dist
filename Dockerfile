@@ -48,8 +48,7 @@ COPY --from=builder /opt/slurm /opt/slurm
 
 RUN tar -C /opt -czf /opt/slurm.tar.gz slurm
 
-
-FROM ubuntu:22.04 as slurmctld
+FROM ubuntu:22.04 as daemon_base
 
 # Create the users. 60430 is the default slurm uid. 60429 for munge is arbitrary.
 RUN groupadd --gid 64029 munge && useradd --uid 64029 --gid 64029 --home-dir /var/spool/munge --no-create-home --shell /bin/false munge
@@ -62,6 +61,9 @@ RUN mkdir /run/munge && chown munge:munge /run/munge
 
 # Copy the built slurm binaries from the builder stage
 COPY --from=builder /opt/slurm /opt/slurm
+
+
+FROM daemon_base as slurmctld
 
 # Default configuration options in supervisord.conf that can be overridden at runtime
 ENV MUNGED_ARGS=
@@ -85,19 +87,7 @@ COPY slurmctld/supervisord.conf /etc/supervisord.conf
 ENTRYPOINT ["/opt/entrypoint.sh"]
 
 
-FROM ubuntu:22.04 as slurmdbd
-
-# Create the users. 60430 is the default slurm uid. 60429 for munge is arbitrary.
-RUN groupadd --gid 64029 munge && useradd --uid 64029 --gid 64029 --home-dir /var/spool/munge --no-create-home --shell /bin/false munge
-RUN groupadd --gid 64030 slurm && useradd --uid 64030 --gid 64030 --home-dir /var/spool/slurm --no-create-home --shell /bin/false slurm
-
-# Install runtime dependencies
-RUN apt-get update && apt-get install libmunge2 munge supervisor inotify-tools -y
-
-RUN mkdir /run/munge && chown munge:munge /run/munge
-
-# Copy the built slurm binaries from the builder stage
-COPY --from=builder /opt/slurm /opt/slurm
+FROM daemon_base as slurmdbd
 
 # Default configuration options in supervisord.conf that can be overridden at runtime
 ENV MUNGED_ARGS=
