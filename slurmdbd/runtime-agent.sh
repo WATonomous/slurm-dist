@@ -17,6 +17,11 @@ function watch_runtime_config() {
     done
 }
 
+function update_slurmdbd_conf() {
+    cp /etc/slurmdbd_config/slurmdbd.conf /etc/slurm/slurmdbd.conf
+    chown slurm: /etc/slurm/slurmdbd.conf
+}
+
 function watch_slurmdbd_config() {
     inotifywait --monitor --recursive --event create,delete,modify,attrib,move /etc/slurmdbd_config | while read FILE; do
         echo "Detected changes in /etc/slurmdbd_config/. Updating /etc/slurm/slurmdbd.conf after a short delay."
@@ -24,8 +29,7 @@ function watch_slurmdbd_config() {
         timeout 3 cat > /dev/null || true
 
         echo "Updating /etc/slurm/slurmdbd.conf"
-        cp /etc/slurmdbd_config/slurmdbd.conf /etc/slurm/slurmdbd.conf
-        chown slurm: /etc/slurm/slurmdbd.conf
+        update_slurmdbd_conf
 
         echo "Restarting slurmdbd"
         /usr/bin/supervisorctl restart slurmdbd
@@ -34,6 +38,7 @@ function watch_slurmdbd_config() {
 
 # Inital update
 update_passwd_group
+update_slurmdbd_conf
 
 # Continuously watch for changes
 watch_runtime_config &
