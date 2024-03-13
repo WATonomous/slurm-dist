@@ -78,9 +78,11 @@ COPY slurmctld/runtime-agent.sh /opt/runtime-agent.sh
 RUN chmod +x /opt/runtime-agent.sh
 COPY prefix-output.sh /opt/prefix-output.sh
 RUN chmod +x /opt/prefix-output.sh
+COPY slurmctld/entrypoint.sh /opt/entrypoint.sh
+RUN chmod +x /opt/entrypoint.sh
 COPY slurmctld/supervisord.conf /etc/supervisord.conf
 
-ENTRYPOINT ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+ENTRYPOINT ["/opt/entrypoint.sh"]
 
 
 FROM ubuntu:22.04 as slurmdbd
