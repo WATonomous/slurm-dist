@@ -55,7 +55,7 @@ RUN groupadd --gid 64029 munge && useradd --uid 64029 --gid 64029 --home-dir /va
 RUN groupadd --gid 64030 slurm && useradd --uid 64030 --gid 64030 --home-dir /var/spool/slurm --no-create-home --shell /bin/false slurm
 
 # Install runtime dependencies
-RUN apt-get update && apt-get install libmunge2 munge supervisor inotify-tools -y
+RUN apt-get update && apt-get install libmunge2 munge supervisor inotify-tools liblua5.3-0 -y
 
 RUN mkdir /run/munge && chown munge:munge /run/munge
 
