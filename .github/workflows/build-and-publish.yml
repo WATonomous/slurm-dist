@@ -6,8 +6,8 @@ on:
       - main
     tags:
       - "v*.*.*"
-    pull_request:
-      - main
+  pull_request:
+    - main
 
 env:
   IMAGE_NAME: ${{ github.repository }}
