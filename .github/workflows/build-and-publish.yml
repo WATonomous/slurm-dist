@@ -1,4 +1,4 @@
-name: Create and publish Packages
+name: Build and publish Images/Packages
 
 on:
   push:
@@ -6,6 +6,8 @@ on:
       - main
     tags:
       - "v*.*.*"
+    pull_request:
+      - main
 
 env:
   IMAGE_NAME: ${{ github.repository }}
