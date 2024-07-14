@@ -1,4 +1,4 @@
-name: Create and publish Packages
+name: Build and publish Images/Packages
 
 on:
   push:
@@ -6,6 +6,11 @@ on:
       - main
     tags:
       - "v*.*.*"
+  pull_request:
+    branches:
+      - main
+
+concurrency: build_and_publish_concurrency_group-${{ github.event.pull_request.number || github.ref_name }}
 
 env:
   IMAGE_NAME: ${{ github.repository }}
