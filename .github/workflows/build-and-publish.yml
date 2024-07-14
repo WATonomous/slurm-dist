@@ -10,6 +10,8 @@ on:
     branches:
       - main
 
+concurrency: build_and_publish_concurrency_group-${{ github.event.pull_request.number || github.ref_name }}
+
 env:
   IMAGE_NAME: ${{ github.repository }}
   IMAGE_REGISTRY: ghcr.io
