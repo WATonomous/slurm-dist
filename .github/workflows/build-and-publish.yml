@@ -79,6 +79,7 @@ jobs:
         with:
           context: .
           target: slurmctld
+          platforms: linux/amd64,linux/arm64
           push: true
           build-args: |
             DOCKER_METADATA_OUTPUT_JSON
