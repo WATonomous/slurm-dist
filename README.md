@@ -4,7 +4,7 @@ This repo contains scripts to build SLURM from source for the [WATcloud][watclou
 
 ## Packages
 
-- [slurmdbd and slurmctld Docker images](https://github.com/WATonomous/slurm-dist/pkgs/container/slurm-dist)
+- [Docker images (slurmdbd, slurmctld, etc.)](https://github.com/WATonomous/slurm-dist/pkgs/container/slurm-dist)
 - [SLURM binaries compiled for Ubuntu 22.04](https://github.com/WATonomous/slurm-dist/releases)
 
 [watcloud]: https://cloud.watonomous.ca/
