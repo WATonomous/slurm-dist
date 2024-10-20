@@ -1,15 +1,15 @@
 # MARK: builder
 FROM ubuntu:22.04 as builder
 
-RUN apt-get update && apt-get install -y wget build-essential fakeroot devscripts equivs
+RUN apt-get update && apt-get install -y wget build-essential fakeroot devscripts equivs git
 
 # Download code and install build dependencies
-RUN mkdir /tmp/builder \
-    && cd /tmp/builder \
-    && wget -q https://download.schedmd.com/slurm/slurm-24.05.1.tar.bz2 -O slurm.tar.bz2 \
-    && echo "3fb801a74c2a29073bfa60006c7d478428c8b0193d89c21104f780c7336edf01 /tmp/builder/slurm.tar.bz2" | sha256sum -c - \
-    && tar -xf slurm.tar.bz2 \
-    && cd slurm* \
+RUN mkdir -p /tmp/builder/slurm \
+    && cd /tmp/builder/slurm \
+    && git init \
+    && git remote add origin https://github.com/WATonomous/slurm.git \
+    && git fetch origin 417362ec31eb302830b7a63049c6c92da625fa29 --depth=1 \
+    && git reset --hard FETCH_HEAD \
     && mk-build-deps --install --tool "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes" debian/control
 
 # Install packages to enable building of plugins
