@@ -28,10 +28,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
 
       - name: Log in to the Container registry
-        uses: docker/login-action@40891eba8c2bcd1309b07ba8b11232f313e86779
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ env.IMAGE_REGISTRY }}
           username: ${{ env.REGISTRY_USER }}
@@ -39,7 +39,7 @@ jobs:
 
       # MARK: packager
       - name: Build packager
-        uses: docker/build-push-action@91df6b874e498451163feb47610c87c4a218c1ee
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: .
           target: packager
@@ -53,7 +53,7 @@ jobs:
           docker rm $ID
       
       - name: Upload package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: slurm
           path: slurm.tar.gz
@@ -61,7 +61,7 @@ jobs:
       # MARK: daemon-base image
       - name: Extract metadata (tags, labels) for daemon-base
         id: daemon-base-meta
-        uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
           images: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: |
@@ -74,7 +74,7 @@ jobs:
             type=sha,format=long
 
       - name: Build and push daemon-base image
-        uses: docker/build-push-action@91df6b874e498451163feb47610c87c4a218c1ee
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: .
           target: daemon-base
@@ -88,7 +88,7 @@ jobs:
       # MARK: slurmctld image
       - name: Extract metadata (tags, labels) for slurmctld
         id: slurmctld-meta
-        uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
           images: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: |
@@ -101,7 +101,7 @@ jobs:
             type=sha,format=long
 
       - name: Build and push slurmctld image
-        uses: docker/build-push-action@91df6b874e498451163feb47610c87c4a218c1ee
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: .
           target: slurmctld
@@ -115,7 +115,7 @@ jobs:
       # MARK: slurmdbd image
       - name: Extract metadata (tags, labels) for slurmdbd
         id: slurmdbd-meta
-        uses: docker/metadata-action@c4ee3adeed93b1fa6a762f209fb01608c1a22f1e
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
         with:
           images: ${{ env.IMAGE_REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: |
@@ -128,7 +128,7 @@ jobs:
             type=sha,format=long
 
       - name: Build and push slurmdbd image
-        uses: docker/build-push-action@91df6b874e498451163feb47610c87c4a218c1ee
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
         with:
           context: .
           target: slurmdbd
@@ -141,7 +141,7 @@ jobs:
 
       # MARK: attach slurm.tar.gz to release
       - name: Attach slurm.tar.gz to release
-        uses: softprops/action-gh-release@975c1b265e11dd76618af1c374e7981f9a6ff44a
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191 # v2.0.8
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
