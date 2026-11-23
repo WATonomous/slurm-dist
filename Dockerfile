@@ -8,7 +8,7 @@ RUN mkdir -p /tmp/builder/slurm \
     && cd /tmp/builder/slurm \
     && git init \
     && git remote add origin https://github.com/WATonomous/slurm.git \
-    && git fetch origin 417362ec31eb302830b7a63049c6c92da625fa29 --depth=1 \
+    && git fetch origin a98909d8fd5a5c1f4f49c83eb681d7257ebc4d35 --depth=1 \
     && git reset --hard FETCH_HEAD \
     && mk-build-deps --install --tool "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes" debian/control
 
